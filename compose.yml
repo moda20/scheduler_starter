@@ -1,0 +1,90 @@
+services:
+  scheduler_backend:
+    image: ghcr.io/moda20/scheduler_backend:latest
+    container_name: scheduler_backend
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - ./:/usr/src/app/src/jobs:ro
+      - ./logs:/usr/src/app/src/logs/
+      - ./outputs:/usr/src/app/src/outputs/
+    ports:
+      - "8080:8080"
+
+  mysql:
+    image: mysql
+    restart: always
+    command: --mysql-native-password=ON
+    environment:
+      MYSQL_ROOT_PASSWORD: root # the db password is just a starter password and should not be used in production
+      MYSQL_NATIVE_PASSWORD: "ON"
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysqlDb:/var/lib/mysql
+
+  loki:
+    image: grafana/loki:latest
+    ports:
+      - 9001:3100
+    volumes:
+      - ./loki/loki-config.yaml:/etc/loki/loki-config.yaml # the loki configuration is just a starter configuration and should not be used in production
+      - ./loki/data:/loki
+    environment:
+      - PGID=0
+      - PUID=0
+    restart: unless-stopped
+
+  scheduler_ui:
+    #image: ghcr.io/moda20/scheduler_ui:latest
+    image: ghcr.io/moda20/scheduler_ui:new_api # the new API is only used for early development
+    restart: unless-stopped
+    container_name: scheduler_ui
+    ports:
+      - "9002:80"
+
+
+  gotify:
+    image: gotify/server
+    ports:
+      - "9004:80"
+    environment:
+      GOTIFY_DEFAULTUSER_PASS: 'admin'
+    volumes:
+      - './gotify_data:/app/data'
+
+
+  browserless:
+    image: ghcr.io/browserless/chromium
+    ports:
+      - "9003:3001"
+    restart: unless-stopped
+    environment:
+      TOKEN: "xxx" # Set your API token
+      PORT: 3001 # Default port
+      CONCURRENT: 5 # Max concurrent sessions
+      TIMEOUT: 120000 # Session timeout in milliseconds
+      QUEUED: 5 # Max queue length
+      HOST: "0.0.0.0" # Host binding
+      #DEBUG: "-*"
+      CORS: true # CORS settings
+      CORS_ALLOW_METHODS: "POST, GET" # Allowed CORS methods
+      CORS_ALLOW_ORIGIN: "*" # Allowed CORS origins
+      CORS_MAX_AGE: 2592000 # Cache age in seconds
+      #METRICS_JSON_PATH: "/root/metrics.json" # Path for metrics persistence
+      #DATA_DIR: "/tmp/my-profile" # User data cache directory
+      DOWNLOAD_DIR: "/downloads" # Directory for downloads
+      ALLOW_GET: true # Allow GET API calls
+      #PROXY_HOST: "proxy.example.com" # Proxy settings
+      #PROXY_PORT: 443
+      #PROXY_SSL: "true"
+      ALLOW_FILE_PROTOCOL: false # Allow file:// protocol
+      HEALTH: false # Health checks
+      MAX_MEMORY_PERCENT: 60 # Max memory threshold for health checks
+      MAX_CPU_PERCENT: 70 # Max CPU threshold for health checks
+      PUID: 0
+      PGID: 0
+    volumes:
+      #- "./:/root" # For metrics persistence
+      - "./downloads:/downloads" # For download directory

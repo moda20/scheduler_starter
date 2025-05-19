@@ -1,0 +1,23 @@
+{
+  "name": "scheduler_starter",
+  "version": "1.0.0",
+  "description": "A starter template for the scheduler-by-moda20",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "scheduler",
+    "starter",
+    "docker",
+    "tasks",
+    "jobs",
+    "cron",
+    "timer"
+  ],
+  "author": "https://github.com/moda20",
+  "license": "ISC",
+  "dependencies": {
+    "schedule-manager": "github:moda20/node-schedule-manager#Feature/typescript_rewrite"
+  }
+}

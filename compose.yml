@@ -2,11 +2,11 @@ services:
   scheduler_backend:
     image: ghcr.io/moda20/scheduler_backend:latest
     container_name: scheduler_backend
-    restart: always
+    #restart: always
     env_file:
       - .env
     volumes:
-      - ./:/usr/src/app/src/jobs:ro
+      - ./:/usr/src/app/src/jobs
       - ./logs:/usr/src/app/src/logs/
       - ./outputs:/usr/src/app/src/outputs/
     ports:
@@ -15,14 +15,13 @@ services:
   mysql:
     image: mysql
     restart: always
-    command: --mysql-native-password=ON
     environment:
-      MYSQL_ROOT_PASSWORD: root # the db password is just a starter password and should not be used in production
-      MYSQL_NATIVE_PASSWORD: "ON"
+      - MYSQL_ROOT_PASSWORD=root # the db password is just a starter password and should not be used in production
     ports:
-      - "3306:3306"
+      - "3306:3306/tcp"
     volumes:
-      - ./mysqlDb:/var/lib/mysql
+      - mysql:/var/lib/mysql
+
 
   loki:
     image: grafana/loki:latest
@@ -88,3 +87,8 @@ services:
     volumes:
       #- "./:/root" # For metrics persistence
       - "./downloads:/downloads" # For download directory
+
+
+volumes:
+  mysql:
+    driver: local

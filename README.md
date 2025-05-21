@@ -27,9 +27,9 @@ so the following is the list of services that you can also find in the `compose.
 - `scheduler_backend` : the scheduler backend, this is the main service that manages jobs
 - `scheduler_ui` : the scheduler_ui as the name suggests
 - `mysql` : the database ued by the scheduler to manage jobs and authentication
-- `gotify` : OPTIONAL - the gotify server, used as a notification server 
-- `browserless` : OPTIONAL - the browserless server, used as a second http requesting system with some extra features like ads blocking (more on the [browserless](https://www.browserless.io/) website)
-- `loki` : OPTIONAL - the Grafana loki server, it is used as logging server for activities inside tasks, and the only way to preview logs on the UI
+- `gotify` : **OPTIONAL** - the gotify server, used as a notification server 
+- `browserless` : **OPTIONAL** - the browserless server, used as a second http requesting system with some extra features like ads blocking (more on the [browserless](https://www.browserless.io/) website)
+- `loki` : **OPTIONAL** - the Grafana loki server, it is used as logging server for activities inside tasks, and the only way to preview logs on the UI
 
 ### Running the stack
 
@@ -134,3 +134,40 @@ But in general, a Task is :
 
 
 Adding the task to the scheduler can be done via the API but much easier via The UI, where you can pick the target file that you created directly with a unique name and a cron setting. 
+
+
+### Screenshots and demos
+
+#### Login page
+![](https://i.imgur.com/bQ4astX.png)
+#### Server target configuration drawer
+![](https://i.imgur.com/I7oCOsW.png)
+#### Server configuration with set target server
+![](https://i.imgur.com/Crbao21.png)
+#### New Job/task popup
+![](https://i.imgur.com/Divijwd.png)
+#### New Job/tasks popup with fields set
+![](https://i.imgur.com/iELOClq.png)
+#### The jobs List (main page to handle jobs)
+![](https://i.imgur.com/dfd7SkE.png)
+#### The jobs List with the test job running
+![](https://i.imgur.com/xXYfmMH.png)
+#### The job's loki logs drawer
+![](https://i.imgur.com/amxv1a1.png)
+#### The job's output files and cache files drawer
+![](https://i.imgur.com/oBa2kMO.png)
+#### The scheduling popup for a single job
+![](https://i.imgur.com/yLLcYKV.png)
+#### The system database dashboard (backups for both databases)
+![](https://i.imgur.com/NCnYZAT.png)
+#### The proxies list (management interface and links between proxies & jobs)
+![](https://i.imgur.com/zTwSX2E.png)
+#### The quick search (spotlight like) popup for jobs
+![](https://i.imgur.com/pRQTVpM.png)
+
+I hope these images cna get your the vision of the UI and the system. i will be adding a video tutorial soon with more fixes
+and accessibility improvements for drawers and popups.
+
+## Contributions
+Contributions are welcome, I [moda20](https://github.com/moda20) will be reviewing all the PRs and testing them, so be sure to include any testing steps that would accelerate the review process.
+This also applies to all the scheduler services (backend & frontend) as well.

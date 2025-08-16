@@ -2,6 +2,10 @@
 
 This repo is a starter template used for testing, education, and development and experimentation with the Scheduler.
 
+If you are looking for teh full documentation, it's now fully hosted on vercel : [Scheduler Docs](https://scheduler-docs-xi.vercel.app/). the following is a lesser version of it nad might be slightly outdated.
+However we will keep updating this repo with any major updates with the scheduler
+
+
 The scheduler is a Task Manager where you write your own tasks in Typescript/Javascript. Based on a typed class component users can write their own processes,
 using any extra packages, libraries, and extra tools they want, all while being able to schedule these tasks to run on a specific time. 
 

@@ -15,7 +15,7 @@ class ExampleJob extends JobConsumer {
         await this.exportResultsToFile({
             job_log_id: jobLog.id,
             fileName: "test",
-            results: { test: "test" },
+            results: { googleTestResult: response.data },
         });
         await this.exportCacheFiles({
             job_log_id: jobLog.id,

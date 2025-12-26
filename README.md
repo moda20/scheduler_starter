@@ -16,9 +16,9 @@ using any extra packages, libraries, and extra tools they want, all while being 
 - Written in **Typescript** and exports the full types to use in your code
 - Written with [Bun](https://bun.sh) as a runtime for faster execution, and [Elysia](https://elysiajs.com/) as the server/API framework
 - Integrates multiple life cycle events for tasks (aka jobs)
-- supports multiple logging targets (files, [Loki](https://grafana.com/oss/loki/), [Gotify notifications](https://gotify.net/docs/install))
+- supports multiple logging targets (files, [Loki](https://grafana.com/oss/loki/), [Gotify notifications](https://gotify.net/docs/install), [ntfy](https://docs.ntfy.sh/install/))
 - Has an easy to comprehend API + heavily tied UI (demo available)
-- Includes built in networking tools for jobs to use ([axios](https://axios-http.com/docs/intro), [browserless](https://www.browserless.io/))
+- Includes built in networking tools for jobs to use ([axios](https://axios-http.com/docs/intro), more in the future)
 - Supports authentication (JWT in API + UI) 
 
 
@@ -32,7 +32,6 @@ so the following is the list of services that you can also find in the `compose.
 - `scheduler_ui` : the scheduler_ui as the name suggests
 - `mysql` : the database ued by the scheduler to manage jobs and authentication
 - `gotify` : **OPTIONAL** - the gotify server, used as a notification server 
-- `browserless` : **OPTIONAL** - the browserless server, used as a second http requesting system with some extra features like ads blocking (more on the [browserless](https://www.browserless.io/) website)
 - `loki` : **OPTIONAL** - the Grafana loki server, it is used as logging server for activities inside tasks, and the only way to preview logs on the UI
 
 ### Running the stack
@@ -90,9 +89,8 @@ Greeting you will be the main jobs list, a table structure that will list all yo
 #### Setting up the external services
 
 The external services we mean here are :
-- Gotify
+- Gotify / ntfy 
 - Loki
-- Browserless
 
 These are **ALL OPTIONAL**, and not setting their host in the `.env` file will disable them. Each of them need 
 one or more configuration variables to be fully functional.
@@ -108,10 +106,12 @@ one or more configuration variables to be fully functional.
     - `GRAFANA_LOKI_USERNAME` : The username for the loki server.
     - `GRAFANA_LOKI_PASSWORD` : The password for the loki server.
 
-3. For Browserless you will need :
-    - `BROWSERLESS_URL` : The host and port of your browserless server.
-    - `BROWSERLESS_TOKEN` : The token for your browserless server, can be set from env variables on the compose service.
+3. For ntfy you will need :
+    - `NTFY_URL` : The host and port of your ntfy server.
+    - `NTFY_TOKEN` : The user token. I recommend creating a different user for the scheduler.
+    - `NTFY_TOPIC` : the target ntfy topic
 
+**Note :** one of Gotify and ntfy can be used as default notification services, but they can also be used as regular services.
 
 ### Creating a new Task
 
@@ -123,18 +123,17 @@ But in general, a Task is :
 - The Task needs to export a new instance of the class : `export default new ExampleJob();` or using `module.exports = new ExampleJob();` if you are using cjs
 - The Task inherits class methods and properties : 
 
-| name                | type     | description                                                                                                                                                                                                 |
-|---------------------|----------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| run                 | function | The `main` method of the job, it will be the method that executes your code                                                                                                                                 |
-| preRun              | function | The `preRun` method is called before the run method, it is used to inject proxies, handle `run` method crashes and errors                                                                                   |
-| logEvent            | function | The `logEvent` method will log an info event and is the main method for logging for jobs, this method will also send the logs to `Loki` if configured                                                       |
-| complete            | function | The `complete` method should be called at the end of your code (at the end of `run` function) and it can be used to register errors or successful runs                                                      |
-| exportResultsToFile | function | The `exportResultsToFile` method allows your code to export a **results** file, which is a generic file type that can be used ax a results output of your task                                              |
-| exportCacheFiles    | function | The `exportCacheFiles` method allows your code to export a **cache** file, which is a generic file type that also have a `time to live` aspect and will be invalidated after the TTL period                 |
-| injectProxies       | function | The `injectProxies` method allows you to manually inject the proxies you have linked with your job to be injected in the `axios` object. They are not done automatically                                    |
-| axios               | object   | The `axios` object is a Task specific instance of the popular http client that will be used by other aspects of the Scheduler like proxies, they will automatically be injected into this instance          |
-| browserless         | object   | The `browserless` object is an instance of [Browserless](https://www.browserless.io/) that is used for automation and bot detection dodging. here it is used to get pages and aa replacement of `axios` |
-| notifications       | object   | The `notifications` object is an object used to send notifications (via Gotify)                                                                                                                             |
+| name                | type     | description                                                                                                                                                                                        |
+|---------------------|----------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| run                 | function | The `main` method of the job, it will be the method that executes your code                                                                                                                        |
+| preRun              | function | The `preRun` method is called before the run method, it is used to inject proxies, handle `run` method crashes and errors                                                                          |
+| logEvent            | function | The `logEvent` method will log an info event and is the main method for logging for jobs, this method will also send the logs to `Loki` if configured                                              |
+| complete            | function | The `complete` method should be called at the end of your code (at the end of `run` function) and it can be used to register errors or successful runs                                             |
+| exportResultsToFile | function | The `exportResultsToFile` method allows your code to export a **results** file, which is a generic file type that can be used ax a results output of your task                                     |
+| exportCacheFiles    | function | The `exportCacheFiles` method allows your code to export a **cache** file, which is a generic file type that also have a `time to live` aspect and will be invalidated after the TTL period        |
+| injectProxies       | function | The `injectProxies` method allows you to manually inject the proxies you have linked with your job to be injected in the `axios` object. They are not done automatically                           |
+| axios               | object   | The `axios` object is a Task specific instance of the popular http client that will be used by other aspects of the Scheduler like proxies, they will automatically be injected into this instance |
+| notifications       | object   | The `notifications` object is an object used to send notifications (via Gotify, Ntfy)                                                                                                              |
 
 
 Adding the task to the scheduler can be done via the API but much easier via The UI, where you can pick the target file that you created directly with a unique name and a cron setting. 

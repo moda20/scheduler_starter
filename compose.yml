@@ -1,6 +1,7 @@
 services:
   scheduler_backend:
     image: ghcr.io/moda20/scheduler_backend:latest
+    #image: ghcr.io/moda20/scheduler_backend:dev for faster but unstable release
     container_name: scheduler_backend
     #restart: always
     env_file:
@@ -37,6 +38,7 @@ services:
 
   scheduler_ui:
     image: ghcr.io/moda20/scheduler_ui:latest
+    #image: ghcr.io/moda20/scheduler_ui:dev for faster but unstable release
     restart: unless-stopped
     container_name: scheduler_ui
     ports:
@@ -52,41 +54,21 @@ services:
     volumes:
       - './gotify_data:/app/data'
 
-
-  browserless:
-    image: ghcr.io/browserless/chromium
-    ports:
-      - "9003:3001"
-    restart: unless-stopped
+  # ntfy if it will be used as a default notification service : official docs https://docs.ntfy.sh/install/
+  ntfy:
+    image: binwiederhier/ntfy
+    container_name: ntfy
+    command:
+      - serve
     environment:
-      TOKEN: "xxx" # Set your API token
-      PORT: 3001 # Default port
-      CONCURRENT: 5 # Max concurrent sessions
-      TIMEOUT: 120000 # Session timeout in milliseconds
-      QUEUED: 5 # Max queue length
-      HOST: "0.0.0.0" # Host binding
-      #DEBUG: "-*"
-      CORS: true # CORS settings
-      CORS_ALLOW_METHODS: "POST, GET" # Allowed CORS methods
-      CORS_ALLOW_ORIGIN: "*" # Allowed CORS origins
-      CORS_MAX_AGE: 2592000 # Cache age in seconds
-      #METRICS_JSON_PATH: "/root/metrics.json" # Path for metrics persistence
-      #DATA_DIR: "/tmp/my-profile" # User data cache directory
-      DOWNLOAD_DIR: "/downloads" # Directory for downloads
-      ALLOW_GET: true # Allow GET API calls
-      #PROXY_HOST: "proxy.example.com" # Proxy settings
-      #PROXY_PORT: 443
-      #PROXY_SSL: "true"
-      ALLOW_FILE_PROTOCOL: false # Allow file:// protocol
-      HEALTH: false # Health checks
-      MAX_MEMORY_PERCENT: 60 # Max memory threshold for health checks
-      MAX_CPU_PERCENT: 70 # Max CPU threshold for health checks
-      PUID: 0
-      PGID: 0
+      - TZ=UTC    # optional: set desired timezone
     volumes:
-      #- "./:/root" # For metrics persistence
-      - "./downloads:/downloads" # For download directory
+      - ./cache/ntfy:/var/cache/ntfy
+      - ./ntfy:/etc/ntfy
+    ports:
+      - "9005:80"
 
+# browserless: was removed as it's an unnecessary dependency
 
 volumes:
   mysql:

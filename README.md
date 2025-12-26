@@ -1,176 +1,259 @@
 # Scheduler Starter
 
-This repo is a starter template used for testing, education, and development and experimentation with the Scheduler.
+> A starter template for testing, education, development, and experimentation with the Scheduler.
 
-If you are looking for teh full documentation, it's now fully hosted on vercel : [Scheduler Docs](https://scheduler-docs-xi.vercel.app/). the following is a lesser version of it nad might be slightly outdated.
-However we will keep updating this repo with any major updates with the scheduler
+![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue.svg)
+![Docker](https://img.shields.io/badge/Docker-Compose-blue.svg)
+![License](https://img.shields.io/badge/License-ISC-green.svg)
 
+📚 **Full Documentation**: [Scheduler Docs](https://scheduler-docs-xi.vercel.app/)
+> The documentation below provides a quick overview of the starter template. For comprehensive documentation, visit the official docs site.
 
-The scheduler is a Task Manager where you write your own tasks in Typescript/Javascript. Based on a typed class component users can write their own processes,
-using any extra packages, libraries, and extra tools they want, all while being able to schedule these tasks to run on a specific time. 
+---
 
-### In a nutshell, The scheduler is a glorified CRON job manager
+## 🎯 What is Scheduler?
 
-## Features :
+Scheduler is a task manager that lets you write your own tasks in TypeScript/JavaScript. Based on a typed class component, users can write custom processes using any packages, libraries, and tools they want—all while scheduling these tasks to run at specific times.
 
-- Written in **Typescript** and exports the full types to use in your code
-- Written with [Bun](https://bun.sh) as a runtime for faster execution, and [Elysia](https://elysiajs.com/) as the server/API framework
-- Integrates multiple life cycle events for tasks (aka jobs)
-- supports multiple logging targets (files, [Loki](https://grafana.com/oss/loki/), [Gotify notifications](https://gotify.net/docs/install), [ntfy](https://docs.ntfy.sh/install/))
-- Has an easy to comprehend API + heavily tied UI (demo available)
-- Includes built in networking tools for jobs to use ([axios](https://axios-http.com/docs/intro), more in the future)
-- Supports authentication (JWT in API + UI) 
+> **In a nutshell**: Scheduler is a powerful, feature-rich CRON job manager.
 
+## ✨ Features
 
-## How to use this starter template
+- 📘 **TypeScript** - Fully typed with exported types for better DX
+- ⚡ **Bun Runtime** - Faster execution with [Bun](https://bun.sh) and [Elysia](https://elysiajs.com/) API framework
+- 🔄 **Lifecycle Events** - Multiple lifecycle hooks for tasks (jobs)
+- 📝 **Multi-Target Logging** - Supports files, [Loki](https://grafana.com/oss/loki/), [Gotify](https://gotify.net/docs/install), and [ntfy](https://docs.ntfy.sh/install/)
+- 🎨 **Integrated UI** - Easy-to-use API with a tightly coupled UI
+- 🌐 **Built-in Networking** - Includes [axios](https://axios-http.com/docs/intro) for HTTP requests (more tools coming soon)
+- 🔐 **Authentication** - JWT-based auth for both API and UI
 
-The starter template relies solely on docker, and more specifically docker compose to launch the "scheduler stack".
-The scheduler stack is a combination of services used to handle all the available features. Not all services are mandatory, 
-so the following is the list of services that you can also find in the `compose.yml` file :
+## 🚀 Quick Start
 
-- `scheduler_backend` : the scheduler backend, this is the main service that manages jobs
-- `scheduler_ui` : the scheduler_ui as the name suggests
-- `mysql` : the database ued by the scheduler to manage jobs and authentication
-- `gotify` : **OPTIONAL** - the gotify server, used as a notification server 
-- `loki` : **OPTIONAL** - the Grafana loki server, it is used as logging server for activities inside tasks, and the only way to preview logs on the UI
+Get up and running in 3 steps:
 
-### Running the stack
-
-Due to the need for specific types from the scheduler_backend inorder to better handle tasks coding, we will take an extra step than just running the compose file.
-
-1. First we pull the latest images
 ```bash
+# 1. Pull the latest Docker images
 docker-compose pull
-```
 
-2. We run the following command to copy the automatically generated types from the scheduler_backend image
-```bash
-docker create --name=scc_b ghcr.io/moda20/scheduler_backend:latest && docker cp scc_b:/usr/src/app/extraTypes/types.d.ts ./types.d.ts && docker container rm scc_b
-```
-This will copy a types.d.ts file to your current project that you can use to have a clearer code experience when creating your tasks and using the included features, like the networking tools.
+# 2. Copy the auto-generated TypeScript types from the backend image
+docker create --name=scc_b ghcr.io/moda20/scheduler_backend:latest && \
+docker cp scc_b:/usr/src/app/extraTypes/types.d.ts ./types.d.ts && \
+docker container rm scc_b
 
-3. The next step is running the entire stack : 
-We can simply use the regular `docker-compose up` command, but in case you encounter some issues on the scheduler_backend side, it's much better to run the compose services 
-individually while running the scheduler_backend last.
-```bash
+# the types.d.ts file copied will have all the types needed to code your job and when using the injected features like logging and notifications, an example job show how is it used
+
+# 3. Start the stack
 docker-compose up -d
 ```
 
-### Configuring the scheduler
+> The UI will be available at `http://localhost:9002` (updatable in the compose file)
 
-Once the scheduler stack is running, you can start by accessing the UI at `http://localhost:9002`(or the port you have specified in the compose file). 
-this will greet you with a login screen by default as you haven't configured the target backend yet.
+---
 
+## 📋 Prerequisites & Services
 
-#### Setting up the database
+The starter template uses Docker Compose to launch the "Scheduler Stack"—a combination of services that handle all available features. Not all services are mandatory.
 
-The main database being used is a mysql database, **that needs 2 databases to be created before running the backend**.
-1. The scheduler database, this will house the jobs definition and the jobs stats, the default name is `scheduler_db`
-2. The base database, this will be used to handle authentication and any user related data, the default name is `scheduler_base`
+### Services Overview
 
-Once the databases are created ( `create database <dbname>;` ) running the backend will check and run any schema migrations that are missing.
+| Service | Description | Required |
+|---------|-------------|----------|
+| `scheduler_backend` | Main backend that manages jobs | ✅ Yes |
+| `scheduler_ui` | Web UI for managing jobs | ✅ Yes |
+| `mysql` | Database for jobs and authentication | ✅ Yes |
+| `gotify` | Notification server | ❌ Optional |
+| `loki` | Grafana Loki logging server | ❌ Optional |
 
-#### Setting up the backend
+---
 
-The backend is obviously more complex with more setting needed to be set using the `.env` file.
+## ⚙️ Configuration Guide
 
-The provided `.env` file is a complete one with all the default and settable values set already
-but you can change them as you wish based on your configurations. a more detailed explanation of each variable can be found on the [backend repo](https://github.com/moda20/scheduler_backend#%EF%B8%8F-configuration)
+### Setting Up the Database
 
+The scheduler uses MySQL and requires **2 databases to be created before running the backend**:
 
-#### Setting up the frontend
+```sql
+CREATE DATABASE scheduler_db;    -- For job definitions and stats, this is the default name and can be changed in the .env file
+CREATE DATABASE scheduler_base;   -- For authentication and user data, this is the default name and can be changed in the .env file
+```
 
-To set the target backend hit the keyboard shortcut `command + l` or `alt +l` (depending on your OS) a sliding drawer will show and you can input the target URL, in this case it should be
-http://localhost:8080. here you can also save the target locally so that you can swap between multiple if you have that case. (the UI icons here are informative)
+The backend will automatically run any missing schema migrations on startup.
 
-Once the target is set you can refresh the page and either login (if you are doing this a second time) or register using, don't worry there is no email verification for now.
-Greeting you will be the main jobs list, a table structure that will list all your saved Tasks, a `+ New Job` button will let you add a new job.
+### Setting Up the Backend
 
-#### Setting up the external services
+Configure the backend using the `.env` file. A complete `.env.example` file is provided with all default values. For detailed configuration options, see the [backend repo documentation](https://github.com/moda20/scheduler_backend#%EF%B8%8F-configuration).
 
-The external services we mean here are :
-- Gotify / ntfy 
-- Loki
+### Setting Up the Frontend
 
-These are **ALL OPTIONAL**, and not setting their host in the `.env` file will disable them. Each of them need 
-one or more configuration variables to be fully functional.
+1. Access the UI at `http://localhost:9002`
+2. Press `Command+L` (Mac) or `Alt+L` (Windows/Linux) to open the server configuration drawer
+3. Enter the backend URL: `http://localhost:8080`
+4. Optionally save the target locally for easy switching between multiple backends
+5. Refresh and login or register (no email verification required)
 
-1. for Gotify, you will need 4 variables :
-    - `GOTIFY_URL` : The host and port of your gotify server (same as the UI). Gotify is easy enough to install and a sample docker server is available in this repo.
-    - `GOTIFY_TOKEN` : The user token. I recommend creating a different user for the scheduler.
-    - `GOTIFY_APP_TOKEN` : The application token for the successful notification.
-    - `GOTIFY_ERROR_APP_TOKEN` : the application token for the error and crashes notifications.
+### Configuring External Services (Optional)
 
-2. For loki you will need :
-    - `GRAFANA_LOKI_URL` : The host and port of your loki server.
-    - `GRAFANA_LOKI_USERNAME` : The username for the loki server.
-    - `GRAFANA_LOKI_PASSWORD` : The password for the loki server.
+#### 📢 Gotify Configuration
 
-3. For ntfy you will need :
-    - `NTFY_URL` : The host and port of your ntfy server.
-    - `NTFY_TOKEN` : The user token. I recommend creating a different user for the scheduler.
-    - `NTFY_TOPIC` : the target ntfy topic
+Requires 4 environment variables:
 
-**Note :** one of Gotify and ntfy can be used as default notification services, but they can also be used as regular services.
+| Variable | Description |
+|----------|-------------|
+| `GOTIFY_URL` | Host and port of your Gotify server (e.g., `http://localhost:9004`) |
+| `GOTIFY_TOKEN` | User token (recommend creating a dedicated user for scheduler) |
+| `GOTIFY_APP_TOKEN` | Application token for success notifications |
+| `GOTIFY_ERROR_APP_TOKEN` | Application token for error/crash notifications |
 
-### Creating a new Task
+#### 📊 Loki Configuration
 
-Creating a task is simple, and is based on an existing class type called `JobConsumer`. You can check the `exampleJob.ts` job for a small example.
-But in general, a Task is : 
+Requires 3 environment variables:
 
-- A single File, hosting a class that inherits from JobConsumer and have at least a `run` method
-- The Task can use any extra packages and call any external services
-- The Task needs to export a new instance of the class : `export default new ExampleJob();` or using `module.exports = new ExampleJob();` if you are using cjs
-- The Task inherits class methods and properties : 
+| Variable | Description |
+|----------|-------------|
+| `GRAFANA_LOKI_URL` | Host and port of your Loki server |
+| `GRAFANA_LOKI_USERNAME` | Username for Loki authentication |
+| `GRAFANA_LOKI_PASSWORD` | Password for Loki authentication |
 
-| name                | type     | description                                                                                                                                                                                        |
-|---------------------|----------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| run                 | function | The `main` method of the job, it will be the method that executes your code                                                                                                                        |
-| preRun              | function | The `preRun` method is called before the run method, it is used to inject proxies, handle `run` method crashes and errors                                                                          |
-| logEvent            | function | The `logEvent` method will log an info event and is the main method for logging for jobs, this method will also send the logs to `Loki` if configured                                              |
-| complete            | function | The `complete` method should be called at the end of your code (at the end of `run` function) and it can be used to register errors or successful runs                                             |
-| exportResultsToFile | function | The `exportResultsToFile` method allows your code to export a **results** file, which is a generic file type that can be used ax a results output of your task                                     |
-| exportCacheFiles    | function | The `exportCacheFiles` method allows your code to export a **cache** file, which is a generic file type that also have a `time to live` aspect and will be invalidated after the TTL period        |
-| injectProxies       | function | The `injectProxies` method allows you to manually inject the proxies you have linked with your job to be injected in the `axios` object. They are not done automatically                           |
-| axios               | object   | The `axios` object is a Task specific instance of the popular http client that will be used by other aspects of the Scheduler like proxies, they will automatically be injected into this instance |
-| notifications       | object   | The `notifications` object is an object used to send notifications (via Gotify, Ntfy)                                                                                                              |
+#### 🔔 ntfy Configuration
 
+Requires 3 environment variables:
 
-Adding the task to the scheduler can be done via the API but much easier via The UI, where you can pick the target file that you created directly with a unique name and a cron setting. 
+| Variable | Description |
+|----------|-------------|
+| `NTFY_URL` | Host and port of your ntfy server |
+| `NTFY_TOKEN` | User token (recommend creating a dedicated user for scheduler) |
+| `NTFY_TOPIC` | Target ntfy topic |
 
+> **Note**: Either Gotify or ntfy can be used as the default notification service, but both can also be used as regular services.
 
-### Screenshots and demos
+---
 
-#### Login page
-![](https://i.imgur.com/bQ4astX.png)
-#### Server target configuration drawer
-![](https://i.imgur.com/I7oCOsW.png)
-#### Server configuration with set target server
-![](https://i.imgur.com/Crbao21.png)
-#### New Job/task popup
-![](https://i.imgur.com/Divijwd.png)
-#### New Job/tasks popup with fields set
-![](https://i.imgur.com/iELOClq.png)
-#### The jobs List (main page to handle jobs)
-![](https://i.imgur.com/dfd7SkE.png)
-#### The jobs List with the test job running
-![](https://i.imgur.com/xXYfmMH.png)
-#### The job's loki logs drawer
-![](https://i.imgur.com/amxv1a1.png)
-#### The job's output files and cache files drawer
-![](https://i.imgur.com/oBa2kMO.png)
-#### The scheduling popup for a single job
-![](https://i.imgur.com/yLLcYKV.png)
-#### The system database dashboard (backups for both databases)
-![](https://i.imgur.com/NCnYZAT.png)
-#### The proxies list (management interface and links between proxies & jobs)
-![](https://i.imgur.com/zTwSX2E.png)
-#### The quick search (spotlight like) popup for jobs
-![](https://i.imgur.com/pRQTVpM.png)
+## 💻 Creating Your First Task
 
-I hope these images cna get your the vision of the UI and the system. i will be adding a video tutorial soon with more fixes
-and accessibility improvements for drawers and popups.
+Tasks are based on the `JobConsumer` class. Check out `exampleJob.ts` for a working example.
 
-## Contributions
-Contributions are welcome, I [moda20](https://github.com/moda20) will be reviewing all the PRs and testing them, so be sure to include any testing steps that would accelerate the review process.
-This also applies to all the scheduler services (backend & frontend) as well.
+### Task Structure
+
+A task consists of:
+- **Single file** containing a class that inherits from `JobConsumer`
+- At minimum, a `run` method that executes your code
+- Ability to import any npm packages or call external services
+- Export a new instance: `export default new ExampleJob();`
+
+### JobConsumer Methods & Properties
+
+| Name | Type | Description |
+|------|------|-------------|
+| `run` | function | Main method that executes your job code |
+| `preRun` | function | Called before `run` - handles proxy injection and error management |
+| `logEvent` | function | Primary logging method - sends logs to Loki if configured |
+| `complete` | function | Call at the end of `run` to register success or errors |
+| `exportResultsToFile` | function | Export results as a generic file type |
+| `exportCacheFiles` | function | Export cache files with TTL (time-to-live) support |
+| `injectProxies` | function | Manually inject linked proxies into axios |
+| `axios` | object | Pre-configured axios instance with proxy support |
+| `notifications` | object | Send notifications via Gotify or ntfy |
+
+### Example Task
+
+```typescript
+import { JobConsumer } from "@jobConsumer/jobConsumer";
+import { JobDTO, JobLogDTO, JobOptions } from "@types/models/job";
+
+class ExampleJob extends JobConsumer {
+    constructor() {
+        super();
+    }
+
+    async run(job: JobDTO, jobLog: JobLogDTO, options: JobOptions) {
+        // Log an event
+        this.logEvent("Starting example job");
+
+        // Make HTTP request using built-in axios
+        const response = await this.axios.get("https://api.example.com/data");
+
+        // Export results
+        await this.exportResultsToFile({
+            job_log_id: jobLog.id,
+            fileName: "results",
+            results: { data: response.data },
+        });
+
+        // Export cache with TTL
+        await this.exportCacheFiles({
+            job_log_id: jobLog.id,
+            fileName: "cache",
+            data: { cached: response.data },
+            newFile: true,
+        });
+
+        // Mark job as complete
+        return this.complete(jobLog, "");
+    }
+}
+
+export default new ExampleJob();
+```
+
+### Adding Tasks to Scheduler
+
+You can add tasks via the API, but it's much easier through the UI:
+1. Click `+ New Job` on the main jobs list
+2. Select your task file
+3. Enter a unique name
+4. Set the cron schedule
+5. Save!
+
+---
+
+## 📸 Screenshots & Demos
+
+### Authentication & Setup
+
+| Login Page | Server Target Configuration | Server with Target Set |
+|-----------|----------------------------|------------------------|
+| ![](https://i.imgur.com/bQ4astX.png) | ![](https://i.imgur.com/I7oCOsW.png) | ![](https://i.imgur.com/Crbao21.png) |
+
+### Job Management
+
+| New Job Popup | Job Popup with Fields | Jobs List | Job Running |
+|---------------|---------------------|-----------|-------------|
+| ![](https://i.imgur.com/Divijwd.png) | ![](https://i.imgur.com/iELOClq.png) | ![](https://i.imgur.com/dfd7SkE.png) | ![](https://i.imgur.com/xXYfmMH.png) |
+
+### Job Details & Actions
+
+| Loki Logs | Output Files & Cache | Scheduling Popup | Quick Search |
+|-----------|---------------------|-----------------|--------------|
+| ![](https://i.imgur.com/amxv1a1.png) | ![](https://i.imgur.com/oBa2kMO.png) | ![](https://i.imgur.com/yLLcYKV.png) | ![](https://i.imgur.com/pRQTVpM.png) |
+
+### System Management
+
+| Database Dashboard | Proxies List |
+|-------------------|--------------|
+| ![](https://i.imgur.com/NCnYZAT.png) | ![](https://i.imgur.com/zTwSX2E.png) |
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! I ([@moda20](https://github.com/moda20)) review all PRs and test them personally. To accelerate the review process, please include:
+
+- Clear description of changes
+- Testing steps and results
+- Any relevant screenshots or logs
+
+This applies to all Scheduler services (backend & frontend) as well.
+
+---
+
+## 📄 License
+
+ISC License - see [LICENSE](LICENSE) for details
+
+---
+
+## 🔗 Links
+
+- 📖 [Full Documentation](https://scheduler-docs-xi.vercel.app/)
+- 🐛 [Backend Repository](https://github.com/moda20/scheduler_backend)
+- 👤 [Author](https://github.com/moda20)
